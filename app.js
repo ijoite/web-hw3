@@ -1,3 +1,5 @@
+const dialog = document.getElementById("detail");
+
 // sortBy : 배열, 키 이름, 참이면 내림차순 ⇒ 새 배열
 const sortBy = (list, key, desc) => {
     const sign = desc ? -1 : 1;
@@ -60,7 +62,6 @@ const renderCards = list => {
         document.querySelector("#count").textContent = list.length + "편";
     }
     document.getElementById("likeCount").textContent = liked.length;
-    updateLikeCount();
     if (list.length === 0) {
         board.classList.add("is-empty");
     } else {
@@ -81,10 +82,22 @@ function getView() {
 
 function refresh() { renderCards(getView()); }
 
+function openDetail(title) {
+    const movie = movies.find(m => m.title === title);
+    if (!movie) return;
+    document.getElementById("detailBody").innerHTML = `
+ <img src="${posterUrl(movie.poster, "w500")}" alt="${movie.title} 포스터">
+ <h2>${movie.title}</h2>
+ <p>개봉일 ${movie.date}</p>
+ <p>평점 ${movie.rating}</p>
+ <p>${movie.overview}</p>`;
+    dialog.showModal();   // 열기 : 화면 가운데에 뜨고 뒤쪽은 어두워집니다
+}
+
 // 찜한 제목 배열을 브라우저에 저장하고 불러오기(교재에 없는 문법: localStorage, JSON)
 const liked = JSON.parse(localStorage.getItem("liked") || "[]");
 function saveLiked() {
-  localStorage.setItem("liked", JSON.stringify(liked));
+    localStorage.setItem("liked", JSON.stringify(liked));
 }
 
 document.getElementById("q").addEventListener("input", refresh);
@@ -105,5 +118,9 @@ document.getElementById("board").addEventListener("click", (e) => {
         refresh();
         return;
     }
+    openDetail(title);
+});
+document.getElementById("closeDetail").addEventListener("click", () => {
+    dialog.close();       // 닫기 : Esc 키를 눌러도 닫힙니다
 });
 refresh();
