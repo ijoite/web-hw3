@@ -42,6 +42,10 @@ const renderCards = list => {
         if (m.type === "boxoffice") {
             rankHtml = `<span class="rank">${m.rank}</span>`;
         }
+        let likeClass = "like";
+        if (liked.includes(m.title)) {
+            likeClass = "like liked";
+        }
         card.innerHTML = `
  ${posterHtml}
  ${rankHtml}
@@ -49,12 +53,13 @@ const renderCards = list => {
  <div class="info">
      <h3>${m.title}</h3>
     <p class="year">${m.year}</p>
-    <button class="like" type="button">♥</button>
+    <button class="${likeClass}" type="button">♥</button>
  </div>`;
         board.appendChild(card);
 
         document.querySelector("#count").textContent = list.length + "편";
     }
+    document.getElementById("likeCount").textContent = liked.length;
     updateLikeCount();
     if (list.length === 0) {
         board.classList.add("is-empty");
@@ -63,4 +68,42 @@ const renderCards = list => {
     }
 }
 
-renderCards(movies);
+function getView() {
+    const keyword = document.getElementById("q").value;
+    const key = document.getElementById("sort").value;
+    const type = document.querySelector('input[name="type"]:checked').value;
+    let list = search(movies, keyword);
+    if (type !== "all") {
+        list = list.filter(m => m.type === type);
+    }
+    return sortBy(list, key, key !== "title");
+}
+
+function refresh() { renderCards(getView()); }
+
+// 찜한 제목 배열을 브라우저에 저장하고 불러오기(교재에 없는 문법: localStorage, JSON)
+const liked = JSON.parse(localStorage.getItem("liked") || "[]");
+function saveLiked() {
+  localStorage.setItem("liked", JSON.stringify(liked));
+}
+
+document.getElementById("q").addEventListener("input", refresh);
+document.getElementById("sort").addEventListener("change", refresh);
+document.getElementById("typeFilter").addEventListener("change", refresh);
+document.getElementById("board").addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    const title = card.getAttribute("data-title");
+    if (e.target.closest(".like")) {
+        const i = liked.indexOf(title);
+        if (i === -1) {
+            liked.push(title);
+        } else {
+            liked.splice(i, 1);
+        }
+        saveLiked();
+        refresh();
+        return;
+    }
+});
+refresh();
