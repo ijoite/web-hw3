@@ -17,6 +17,7 @@ const search = (list, keyword) => {
     return list.filter(m => m.title.toLowerCase().includes(word));
 }
 
+// posterUrl : 포스터 경로, 크기 ⇒ 포스터 주소(문자열)
 const posterUrl = (path, size) => {
     return "https://image.tmdb.org/t/p/" + size + path;
 }
@@ -69,6 +70,7 @@ const renderCards = list => {
     }
 }
 
+// getView : 없음 ⇒ 검색, 보기 필터, 정렬을 거친 새 배열
 function getView() {
     const keyword = document.getElementById("q").value;
     const key = document.getElementById("sort").value;
@@ -80,8 +82,10 @@ function getView() {
     return sortBy(list, key, key !== "title");
 }
 
+// refresh : 없음 ⇒ 지금 조건으로 보드 다시 그리기(반환값 없음)
 function refresh() { renderCards(getView()); }
 
+// openDetail : 영화 제목 ⇒ 상세 창 열기(반환값 없음)
 function openDetail(title) {
     const movie = movies.find(m => m.title === title);
     if (!movie) return;
@@ -96,6 +100,7 @@ function openDetail(title) {
 
 // 찜한 제목 배열을 브라우저에 저장하고 불러오기(교재에 없는 문법: localStorage, JSON)
 const liked = JSON.parse(localStorage.getItem("liked") || "[]");
+// saveLiked : 없음 ⇒ liked 배열을 localStorage에 저장(반환값 없음)
 function saveLiked() {
     localStorage.setItem("liked", JSON.stringify(liked));
 }
